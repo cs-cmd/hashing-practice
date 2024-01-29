@@ -15,4 +15,12 @@ function customHash(str) {
   return hashCode;
 }
 
+function customHash2(str) {
+  let hashCode = 0;
+  const primeNumber = 31;
+  for (let i = 0; i < string.length; i++) {
+    hashCode = primeNumber * hashCode + str.charCodeAt(i);
+  }
+  return hashCode;
+}
 export { customBasicHash, customTrivialHash, customHash };
