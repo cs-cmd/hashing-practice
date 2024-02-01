@@ -13,6 +13,11 @@ const customHashMap = (hashFunction) => {
 
   const hash = (key) => hashFunction(key);
 
+  /**
+   * 
+   * @param {*} key - The key to hash
+   * @returns the hashcode/index adjusted for the current capacity
+   */
   const primeHashCode = (key) => {
     let hashCode = hash(key);
     if(hashCode >= capacity) {
@@ -54,9 +59,27 @@ const customHashMap = (hashFunction) => {
     return retVal;
   };
 
-  const has = (key) => {};
+  /**
+   * 
+   * @param {*} key - The key to check 
+   * @returns True if exists, false if not
+   */
+  const has = (key) => get(key) !== null;
 
-  const remove = (key) => {};
+  /**
+   * 
+   * @param {*} key - The key of the item to delete 
+   * @returns True if deleted, false if not
+   */
+  const remove = (key) => {
+    const hashCode = primeHashCode(key);
+    if (hashTable[hashCode] == null) {
+      return false;
+    }
+
+    const deletedValue = hashTable[hashCode].remove(key);
+    return deletedValue !== null;
+  };
 
   const length = () => numKeys;
 
