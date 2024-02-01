@@ -33,16 +33,11 @@ const customHashMap = (hashFunction) => {
    
     const hashCode = primeHashCode(key);
 
-    const addItem = {
-      key,
-      value,
-    };
-
     if (hashTable[hashCode] == null) {
       hashTable[hashCode] = linkedList();
     }
 
-    hashTable[hashCode].add(hashCode, addItem);
+    hashTable[hashCode].add(key, value);
 
     numKeys++;
   };
@@ -95,7 +90,7 @@ const customHashMap = (hashFunction) => {
     const itemArr = [];
 
     for(let i = 0; i < hashTable.length; i++) {
-      if(hashTable[i] == null) {
+      if(!hashTable[i]) {
         continue;
       }
 
@@ -110,7 +105,8 @@ const customHashMap = (hashFunction) => {
     return itemArr;
   };
   const keys = () => itemsOf("key");
-  const values = () => itemsOf("value");
+  const values = () => itemsOf('value');
+  const entries = () => itemsOf("item");
 
   // semi-deep
   const clear = () => {
@@ -129,15 +125,15 @@ const customHashMap = (hashFunction) => {
     const allItems = itemsOf('item');
 
     for (let i = 0; i < allItems.length; i++) {
-      console.log(allItems[i]);
-      const {key} = allItems[i];
+      const {key, value} = allItems[i];
       const hashCode = primeHashCode(key);
 
-      newTable[hashCode] = linkedList();
+      if(!newTable[hashCode]) {
+        newTable[hashCode] = linkedList();
+      }
 
-      newTable[hashCode].add(key, allItems[i]);
+      newTable[hashCode].add(key, value);
     }
-
     hashTable = newTable;
   };
 
@@ -155,6 +151,13 @@ const customHashMap = (hashFunction) => {
     set,
     get,
     print,
+    has,
+    remove,
+    values,
+    keys,
+    clear,
+    length,
+    entries
   };
 };
 
