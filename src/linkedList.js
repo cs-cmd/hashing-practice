@@ -15,7 +15,6 @@ const linkedList = () => {
   let length = 0;
 
   const add = (key, value) => {
-    console.log(key, value);
     const newNode = Node({ key, value });
     if (head == null) {
       head = newNode;
@@ -29,51 +28,65 @@ const linkedList = () => {
   };
 
   const iterate = (cb) => {
-    console.log(`total items ${length}`);
     if (head == null) {
       return;
     }
 
-    let count = 0;
-    const cursor = head;
+    let cursor = head;
     while (cursor != null) {
-      console.log(`on item ${++i}`);
-      cb(cursor);
+      const isDone = cb(cursor);
+      if(isDone) {
+        break;
+      }
       cursor = cursor.next;
     }
   };
 
-  const get = (key) => {};
-
-  const removeUtil = (node) => {
-    const tempPrev = node.prev;
+  const get = (key) => {
+    let retVal = null;
+    iterate((c) => {
+      if(c.item.key === key) {
+        retVal = c.item;
+        return true;
+      }
+      return false;
+    });
+    return retVal;
   };
+
   const remove = (key) => {
     iterate((c) => {
-      if (c.key === key) {
-        removeUtil(cursor);
+      if (c.item.key !== key) {
+        return false;
       }
-    });
-    length--;
-  };
 
-  const forEach = (cb) => {
-    if (head == null) {
-      return;
-    }
-    const cursor = head;
-    while (cursor != null) {
-      cb(cursor);
-      cursor = cursor.next();
-    }
+      if(c.item.key === head.item.key) {
+        head = head.next;
+        head.prev = null;
+      } else if (c.item.key === tail.item.key) {
+        tail = tail.prev;
+        tail.next = null;
+      } else {
+        c.prev.next = c.next;
+        c.next.prev = c.prev;
+      }
+      return true;
+    });
   };
 
   const len = () => length;
 
+  const print = () => {
+    iterate(console.log);
+  }
+
   return {
     add,
     remove,
+    get,
+    iterate,
     len,
+    print
   };
 };
 

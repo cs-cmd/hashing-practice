@@ -13,12 +13,20 @@ const customHashMap = (hashFunction) => {
 
   const hash = (key) => hashFunction(key);
 
-  const set = (key, value) => {
+  const primeHashCode = (key) => {
     let hashCode = hash(key);
-
-    if (hashCode > capacity) {
-      hashCode = hashCode % capacity;
+    if(hashCode >= capacity) {
+      hashCode %= capacity;
     }
+    return hashCode;
+  }
+
+  const set = (key, value) => {
+    if (numKeys + 1 > capacity * LOAD_FACTOR) {
+      resize();
+    }
+   
+    const hashCode = primeHashCode(key);
 
     const addItem = {
       key,
@@ -32,33 +40,18 @@ const customHashMap = (hashFunction) => {
     hashTable[hashCode].add(hashCode, addItem);
 
     numKeys++;
-
-    if (numKeys > capacity * LOAD_FACTOR) {
-      resize();
-    }
   };
 
   const get = (key) => {
-    const hashCode = hash(key);
-
-    if (hashCode > capacity) {
-      hashCode = hashCode % capacity;
-    }
+    const hashCode = primeHashCode(key);
 
     if (hashTable[hashCode] == null) {
       return null;
     }
 
-    const cursor = hashTable[hashCode].head;
+    const retVal = hashTable[hashCode].get(key);
 
-    while (cursor != null) {
-      if (cursor.key == key) {
-        return cursor.value;
-      }
-      cursor = cursor.next;
-    }
-
-    return null;
+    return retVal;
   };
 
   const has = (key) => {};
@@ -72,19 +65,24 @@ const customHashMap = (hashFunction) => {
    * @param type - The type of value to get (key - keys, value - value)
    */
   const itemsOf = (type) => {
-    if (type !== "key" || type !== "value") {
+    if (type !== "key" && type !== "value" && type !== 'item') {
       throw new Error("Invalid `itemsOf` type");
     }
 
     const itemArr = [];
-    for (let i = 0; i < hashTable.length; i++) {
-      if (hashTable[i] == null) {
+
+    for(let i = 0; i < hashTable.length; i++) {
+      if(hashTable[i] == null) {
         continue;
       }
-      const cursor = hashTable[i].head;
-      while (cursor != null) {
-        itemArr.push(cursor[type]);
-      }
+
+      hashTable[i].iterate((c) => {
+        if(type == 'item') {
+          itemArr.push(c.item);
+        } else {
+          itemArr.push(c.item[type]);
+        }
+      });
     }
     return itemArr;
   };
@@ -102,47 +100,30 @@ const customHashMap = (hashFunction) => {
     }
   };
 
-  const iterate = (linkedList, cb) => {
-    console.log(linkedList.head);
-    let cursor = linkedList.head;
-
-    while (cursor != null) {
-      cb(cursor);
-      cursor = cursor.next;
-    }
-  };
-
   const resize = () => {
     capacity *= 2;
     const newTable = Array(capacity);
+    const allItems = itemsOf('item');
 
-    for (let i = 0; i < hashTable.length; i++) {
-      if (hashTable[i] == null) {
-        continue;
-      }
-      newTable[i] = linkedList();
+    for (let i = 0; i < allItems.length; i++) {
+      console.log(allItems[i]);
+      const {key} = allItems[i];
+      const hashCode = primeHashCode(key);
 
-      iterate(hashTable[i], (c) => {
-        newTable[i].set(c.key, c.item);
-      });
+      newTable[hashCode] = linkedList();
+
+      newTable[hashCode].add(key, allItems[i]);
     }
 
     hashTable = newTable;
   };
 
   const print = () => {
-    console.log("in print");
-    console.log(hashTable.length);
-    for (let i = 0; i < hashTable.length; i++) {
-      if (hashTable[i] == null) {
-        console.log(`${i} is null`);
+    for(let i = 0; i < hashTable.length; i++) {
+      if(hashTable[i] == null) {
         continue;
       }
-
-      console.log(hashTable[i]);
-      iterate(hashTable[i], (c) => {
-        console.log(c);
-      });
+      hashTable[i].iterate(console.log);
     }
   };
 
